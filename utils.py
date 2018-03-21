@@ -23,5 +23,5 @@ def load_dataset(batch_size):
     DE.build_vocab(train.src, min_freq=2)
     EN.build_vocab(train.trg, max_size=10000)
     train_iter, val_iter, test_iter = BucketIterator.splits(
-            (train, val, test), batch_size=batch_size, repeat=False)
+            (train, val, test), batch_size=batch_size, repeat=False, device=-1) # device=-1 refers to cpu
     return train_iter, val_iter, test_iter, DE, EN

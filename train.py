@@ -30,8 +30,8 @@ def evaluate(model, val_iter, vocab_size, DE, EN):
     for b, batch in enumerate(val_iter):
         src, len_src = batch.src
         trg, len_trg = batch.trg
-        src = Variable(src.data.cuda(), volatile=True)
-        trg = Variable(trg.data.cuda(), volatile=True)
+        src = Variable(src.data, volatile=True)
+        trg = Variable(trg.data, volatile=True)
         output = model(src, trg)
         loss = F.cross_entropy(output[1:].view(-1, vocab_size),
                                trg[1:].contiguous().view(-1),
@@ -47,7 +47,7 @@ def train(e, model, optimizer, train_iter, vocab_size, grad_clip, DE, EN):
     for b, batch in enumerate(train_iter):
         src, len_src = batch.src
         trg, len_trg = batch.trg
-        src, trg = src.cuda(), trg.cuda()
+        src, trg = src, trg
         optimizer.zero_grad()
         output = model(src, trg)
         loss = F.cross_entropy(output[1:].view(-1, vocab_size),
@@ -69,7 +69,6 @@ def main():
     args = parse_arguments()
     hidden_size = 512
     embed_size = 256
-    assert torch.cuda.is_available()
 
     print("[!] preparing dataset...")
     train_iter, val_iter, test_iter, DE, EN = load_dataset(args.batch_size)
@@ -84,7 +83,7 @@ def main():
                       n_layers=2, dropout=0.5)
     decoder = Decoder(embed_size, hidden_size, en_size,
                       n_layers=1, dropout=0.5)
-    seq2seq = Seq2Seq(encoder, decoder).cuda()
+    seq2seq = Seq2Seq(encoder, decoder)
     optimizer = optim.Adam(seq2seq.parameters(), lr=args.lr)
     print(seq2seq)
 
